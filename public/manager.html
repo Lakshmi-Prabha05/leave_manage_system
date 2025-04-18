@@ -1,0 +1,180 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><title>Manager Panel</title>
+  <style>
+    :root {
+      --bg-color: #f4f6f8;
+      --table-bg: #fff;
+      --text-color: #333;
+      --input-bg: #fff;
+      --primary-color: #007bff;
+      --button-hover: #0056b3;
+      --table-border-color: #ccc;
+    }
+  
+    body.dark {
+      --bg-color: #1e1e1e;
+      --table-bg: #2c2c2c;
+      --text-color: #f5f5f5;
+      --input-bg: #3b3b3b;
+      --primary-color: #0d6efd;
+      --button-hover: #084298;
+      --table-border-color: #555;
+    }
+  
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+  
+    body {
+      background: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      padding: 20px;
+      transition: background 0.3s, color 0.3s;
+    }
+  
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+  
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: var(--table-bg);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+      margin-top: 20px;
+    }
+  
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border: 1px solid var(--table-border-color);
+    }
+  
+    th {
+      background-color: var(--primary-color);
+      color: #fff;
+      font-size: 16px;
+    }
+  
+    td {
+      background-color: #f9f9f9;
+    }
+  
+    td select {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--table-border-color);
+      font-size: 14px;
+      background-color: var(--input-bg);
+      color: var(--text-color);
+    }
+  
+    td select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+  
+    .toggle-dark {
+      margin-top: 15px;
+      text-align: center;
+    }
+  
+    .toggle-dark button {
+      background: none;
+      border: 2px solid var(--primary-color);
+      color: var(--primary-color);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+  
+    .toggle-dark button:hover {
+      background: var(--primary-color);
+      color: white;
+    }
+  
+    @media (max-width: 768px) {
+      table {
+        font-size: 14px;
+      }
+  
+      th, td {
+        padding: 8px;
+      }
+    }
+  </style>
+  
+</head>
+<body>
+  <div class="container">
+    <h2>Leave Requests</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Start</th>
+          <th>End</th>
+          <th>Reason</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="leaveTable"></tbody>
+    </table>
+
+    <div class="toggle-dark">
+      <button onclick="document.body.classList.toggle('dark')">Toggle Dark Mode</button>
+    </div>
+  </div>
+
+  <script>
+    async function fetchLeaves() {
+      const res = await fetch('/leaves');
+      const leaves = await res.json();
+      const table = document.getElementById('leaveTable');
+      table.innerHTML = '';
+      leaves.forEach((leave, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${leave.name}</td>
+          <td>${leave.start}</td>
+          <td>${leave.end}</td>
+          <td>${leave.reason}</td>
+          <td>
+            <select onchange="updateStatus(${index}, this.value)">
+              <option ${leave.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+              <option ${leave.status === 'Approved' ? 'selected' : ''}>Approved</option>
+              <option ${leave.status === 'Denied' ? 'selected' : ''}>Denied</option>
+            </select>
+          </td>`;
+        table.appendChild(row);
+      });
+    }
+
+    async function updateStatus(index, status) {
+      await fetch('/update-status/' + index, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+      fetchLeaves();
+    }
+
+    fetchLeaves();
+  </script>
+  
+</body>
+</html>

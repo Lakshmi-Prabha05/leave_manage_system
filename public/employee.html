@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employee Panel</title>
+  <style>
+    :root {
+      --bg-color: #f4f6f8;
+      --card-bg: #fff;
+      --text-color: #333;
+      --input-bg: #fff;
+      --button-bg: #007bff;
+      --button-hover: #0056b3;
+    }
+
+    body.dark {
+      --bg-color: #1e1e1e;
+      --card-bg: #2c2c2c;
+      --text-color: #f5f5f5;
+      --input-bg: #3b3b3b;
+      --button-bg: #0d6efd;
+      --button-hover: #084298;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: var(--bg-color);
+      color: var(--text-color);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .header img {
+      width: 60px;
+      height: 60px;
+    }
+
+    .header h1 {
+      margin-top: 10px;
+      font-size: 24px;
+    }
+
+    form {
+      background: var(--card-bg);
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      transition: background 0.3s;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    textarea {
+      width: 100%;
+      padding: 12px 14px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      background: var(--input-bg);
+      color: var(--text-color);
+      transition: border 0.3s ease, background 0.3s ease, color 0.3s ease;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: var(--button-bg);
+      outline: none;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: var(--button-bg);
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: var(--button-hover);
+    }
+
+    .toggle-dark {
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .toggle-dark button {
+      background: none;
+      border: 2px solid var(--button-bg);
+      color: var(--button-bg);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .toggle-dark button:hover {
+      background: var(--button-bg);
+      color: white;
+    }
+
+    @media (max-width: 500px) {
+      form {
+        padding: 20px;
+      }
+
+      .header h1 {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="logo">
+      <h1>Employee Panel</h1>
+    </div>
+
+    <h2>Apply Leave</h2>
+    <form id="leaveForm">
+      <input type="text" id="name" placeholder="Name" required><br>
+      <input type="date" id="start" required><br>
+      <input type="date" id="end" required><br>
+      <textarea id="reason" placeholder="Reason" required></textarea><br>
+      <button type="submit">Submit</button>
+    </form>
+
+    <div class="toggle-dark">
+      <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('leaveForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const leave = {
+        name: document.getElementById('name').value,
+        start: document.getElementById('start').value,
+        end: document.getElementById('end').value,
+        reason: document.getElementById('reason').value
+      };
+      const res = await fetch('/apply-leave', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(leave)
+      });
+      const result = await res.json();
+      alert(result.message);
+      e.target.reset();
+    });
+
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark');
+    }
+  </script>
+  
+</body>
+</html>
